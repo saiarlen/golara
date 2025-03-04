@@ -1,0 +1,12 @@
+.env
+.denv.yaml
+denv.yaml
+.vscode
+storage/*
+!storage
+tmp
+ekycapp
+.air
+.env.backup
+.DS_Store
+xbin/*

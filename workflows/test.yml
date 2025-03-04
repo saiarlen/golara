@@ -1,0 +1,46 @@
+name: Deploy to eKYC GO App
+on:
+  push:
+    branches:
+      - staging
+jobs:
+  build: 
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 🚚 Get latest code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.22'
+    - name: Make envfile
+      uses: SpicyPizza/create-envfile@v2.0
+      with:
+        envkey_APP_NAME: "EKYCAPP"
+        envkey_APP_ENV: "production"
+        envkey_DIGIO_URL: "https://ext.digio.in:444"
+
+        
+    - name: Build the app
+      run: go build -o ekycapp-${{ github.run_number }}
+
+    - name: Create build folder and copy files
+      run: |
+        mkdir build
+        mv ekycapp-${{ github.run_number }} build/
+        cp .denv-example.yaml .env build/
+
+    - name: 📂 Sync files 
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      with:
+        server: "202.53.93.27" 
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        server-dir: /
+        local-dir: build/
+        exclude: |
+            **/storage/**
+            .denv.yaml
+        

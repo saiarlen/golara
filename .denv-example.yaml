@@ -1,0 +1,19 @@
+# Dynamic Conf File
+
+#Database
+DB_HOST: "127.0.0.1"
+DB_PORT: "3306"
+DB_DATABASE: ekyc_local
+DB_USERNAME: root
+DB_PASSWORD: ""
+
+
+#App Salts
+KYC_TOKEN_SECRET: "#"
+ADMIN_TOKEN_SECRET: "#"
+CLOSURE_TOKEN_SECRET: "#"
+
+
+ZOOP_API_KEY: "#"
+ZOOP_APP_ID: "#"
+ZOOP_BASE_URL: "#"
