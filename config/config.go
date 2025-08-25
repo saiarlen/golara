@@ -1,31 +1,46 @@
 package config
 
 import (
-	"fmt"
 	"log"
 	"os"
+	"sync"
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/joho/godotenv"
 	"github.com/spf13/viper"
 )
 
-func Env(key string) string {
-	err := godotenv.Load(".env") //loading .env file
+var (
+	envOnce sync.Once
+	envErr  error
+)
 
-	if err != nil {
-		fmt.Print("Error loading .env file")
-	}
+// Env loads .env file once and returns environment variable
+func Env(key string) string {
+	envOnce.Do(func() {
+		envErr = godotenv.Load(".env")
+		if envErr != nil {
+			log.Printf("Warning: Error loading .env file: %v", envErr)
+		}
+	})
 
 	return os.Getenv(key)
 }
 
-// Dynamic Env Setup because .env needed rebuild if anything changes and hard to manage paas kind apps so created denv
-func InitDenv() {
+// EnvWithDefault returns environment variable with default value
+func EnvWithDefault(key, defaultValue string) string {
+	value := Env(key)
+	if value == "" {
+		return defaultValue
+	}
+	return value
+}
 
-	viper.SetConfigName(".denv") // config file name without extension
-	viper.SetConfigType("yaml")  // config file type
-	viper.AddConfigPath(".")     // config file path
+// InitDenv initializes dynamic environment configuration
+func InitDenv() error {
+	viper.SetConfigName(".denv")
+	viper.SetConfigType("yaml")
+	viper.AddConfigPath(".")
 
 	err := viper.ReadInConfig()
 	if err != nil {
@@ -33,21 +48,25 @@ func InitDenv() {
 			viper.SetConfigName(".denv-example")
 			err = viper.ReadInConfig()
 			if err != nil {
-				log.Fatal(err)
+				return err
 			}
+			log.Println("Using .denv-example.yaml as configuration")
 		} else {
-			log.Fatal(err)
+			return err
 		}
+	} else {
+		log.Println("Configuration loaded from .denv.yaml")
 	}
 
 	viper.WatchConfig()
 	viper.OnConfigChange(func(e fsnotify.Event) {
-		log.Println("Config file changed:", e.Name)
-		err := viper.ReadInConfig()
-		if err != nil {
-			log.Fatal(err)
+		log.Printf("Configuration file changed: %s", e.Name)
+		if err := viper.ReadInConfig(); err != nil {
+			log.Printf("Error reloading config: %v", err)
 		}
 	})
+	
+	return nil
 }
 
 func Denv(key string) string {

@@ -1,24 +1,39 @@
 package migrations
 
 import (
-	"ekycapp/app/models"
-	"ekycapp/config"
+	"github.com/test/myapp/framework/database"
+
+	"gorm.io/gorm"
 )
 
-func Migrations() error {
-	db := config.DB
+// RegisterMigrations registers all migrations
+func RegisterMigrations(migrator *database.Migrator) {
+	// Register all migrations here
+	name, up, down := CreateUsersTableMigration()
+	migrator.Add(name, up, down)
 
-	//php - collation - utf8mb4_unicode_ci
-	//go - collation - utf8mb4_0900_ai_ci
+	// Add more migrations here as you create them
+	// name2, up2, down2 := CreateProductsTableMigration()
+	// migrator.Add(name2, up2, down2)
+}
 
-	//db.Migrator().AlterColumn(&models.ApxApiUser{}, "kbr")
-	//Add All the migrations here
+// RunMigrations runs all registered migrations
+func RunMigrations(db *gorm.DB) error {
+	migrator := database.NewMigrator(db)
+	RegisterMigrations(migrator)
+	return migrator.Run()
+}
 
-	//Gobal
-	db.AutoMigrate(&models.ApxMasters{})
+// RollbackMigrations rolls back migrations
+func RollbackMigrations(db *gorm.DB, steps int) error {
+	migrator := database.NewMigrator(db)
+	RegisterMigrations(migrator)
+	return migrator.Rollback(steps)
+}
 
-	// Change the order of the "kbr" column to be after the "ckr" column
-	//utils.AlterColumnOrder(db, "apx_api_users", "name", "email")
-
-	return nil
+// MigrationStatus shows migration status
+func MigrationStatus(db *gorm.DB) error {
+	migrator := database.NewMigrator(db)
+	RegisterMigrations(migrator)
+	return migrator.Status()
 }

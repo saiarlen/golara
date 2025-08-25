@@ -1,64 +1,86 @@
 package main
 
 import (
-	"ekycapp/app/middlewares"
-	"ekycapp/config"
-	"ekycapp/routes"
-	"ekycapp/utils"
+	"github.com/test/myapp/app/jobs"
+	"github.com/test/myapp/cmd"
+	"github.com/test/myapp/config"
+	"github.com/test/myapp/framework"
+	"github.com/test/myapp/framework/database"
+	"github.com/test/myapp/framework/queue"
+	"github.com/test/myapp/routes"
+	"log"
 	"os"
-
-	"github.com/gofiber/fiber/v2/log"
-
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/gofiber/fiber/v2/middleware/logger"
-	"github.com/gofiber/fiber/v2/middleware/recover"
 )
 
 func main() {
+	// Initialize configuration
+	if err := config.InitDenv(); err != nil {
+		log.Fatalf("Failed to initialize configuration: %v", err)
+	}
 
-	config.InitDenv()
-	config.ConnectDB()
+	// Handle CLI commands
 	subCmd := "-subcommand"
 	if len(os.Args) > 1 && os.Args[1] == subCmd {
-		err := Commands()
-		if err == nil {
-			return
+		// Connect to database only for migration commands
+		if len(os.Args) > 2 && (os.Args[2] == "migrate" || os.Args[2] == "migrate:rollback" || os.Args[2] == "migrate:status") {
+			if err := config.ConnectDB(); err != nil {
+				log.Fatalf("Failed to connect to database: %v", err)
+			}
+		}
+		if err := cmd.RunCommands(); err != nil {
+			log.Fatal(err)
 		}
 		return
 	}
-	utils.StorageInit()
 
-	app := fiber.New(fiber.Config{
-		BodyLimit: 20 * 1024 * 1024, // Set limit to 10 MB
-	})
-
-	// Configure the logger to write to the log file
-	app.Use(logger.New(logger.Config{
-		Format:     "${time} | ${status} | ${latency} | ${ip} | ${method} | ${path} | ${error}\n",
-		Output:     utils.LogFile("request.log"),
-		TimeFormat: "2006-01-02 15:04:05",
-	}))
-
-	if config.Env("APP_ENV") == "production" {
-		f := utils.LogFile("error.log")
-		defer f.Close()
-		log.SetOutput(f) //If production then log on file otherwise in terminal
+	// Connect to database for server mode
+	if err := config.ConnectDB(); err != nil {
+		log.Fatalf("Failed to connect to database: %v", err)
 	}
 
-	app.Use(cors.New(cors.Config{
-		AllowOrigins:     config.Denv("CORS_ALLOWED_DOMAINS"),
-		AllowHeaders:     "Content-Type, Authorization, Entity",
-		AllowCredentials: true,
-	}))
-	app.Use(recover.New())
+	// Create Golara application
+	app := framework.New(framework.Config{
+		AppName:     config.Denv("APP_NAME"),
+		Version:     "1.0.0",
+		Environment: config.Denv("APP_ENV"),
+		RedisAddr:   config.Denv("REDIS_HOST") + ":" + config.Denv("REDIS_PORT"),
+		RedisPass:   config.Denv("REDIS_PASSWORD"),
+		RedisDB:     0,
+	})
 
-	app.Use(middlewares.ErrorHandler)
-	app.Use(middlewares.PanicHandler)
-	//app.Use(middlewares.LicenseValidator)
+	// Connect to database
+	err := app.ConnectDatabase("mysql", database.DatabaseConfig{
+		Driver:   config.Denv("DB_CONNECTION"),
+		Host:     config.Denv("DB_HOST"),
+		Port:     config.Denv("DB_PORT"),
+		Database: config.Denv("DB_DATABASE"),
+		Username: config.Denv("DB_USERNAME"),
+		Password: config.Denv("DB_PASSWORD"),
+		Charset:  "utf8mb4",
+	})
+	if err != nil {
+		log.Printf("Warning: Database connection failed: %v", err)
+	}
 
-	routes.WebRoutes(app)
-	routes.ApiRoutes(app)
+	// Register job handlers
+	app.Queue.RegisterJob("send_email", func() queue.Job {
+		return &jobs.SendEmailJob{}
+	})
 
-	app.Listen(":9000")
+	// Start queue workers
+	app.StartQueue("default", 3)
+
+	// Register routes
+	routes.RegisterRoutes(app)
+
+	// Start server
+	port := config.Denv("APP_PORT")
+	if port == "" {
+		port = "8080"
+	}
+	
+	log.Printf("🔥 %s starting on port %s", config.Denv("APP_NAME"), port)
+	log.Printf("📚 API Documentation: http://localhost:%s/docs", port)
+	
+	app.Listen(":" + port)
 }

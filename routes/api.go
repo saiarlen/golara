@@ -1,22 +1,33 @@
 package routes
 
 import (
+	"github.com/test/myapp/app/controllers"
+	"github.com/test/myapp/framework"
+
 	"github.com/gofiber/fiber/v2"
 )
 
-func ApiRoutes(app *fiber.App) {
-	//api := app.Group("/api")
+// RegisterAPIRoutes registers all API routes
+func RegisterAPIRoutes(app *framework.Golara) {
+	// Create controllers
+	userController := &controllers.UserController{
+		DB:     app.DB,
+		Events: app.Events,
+	}
 
-	///////////////////////////// public Api routes //////////////////////////////
+	// API group
+	api := app.Group("/api")
 
-	// Admin auth
-	// api.Post("/admin/admin-auth", adminkycauth.Admin)
-	// api.Post("/admin/admin-otpverify", adminkycauth.AdminOtpVerify)
+	// User routes
+	api.Get("/users", userController.Index)
+	api.Post("/users", userController.Store)
 
-	//privateAdmin := api.Group("/admin", middlewares.AdminTokenAuth)
-
-	///////////////////////////////////////////  Private ADMIN      ///////////////////////////////////////////////////////////////////
-
-	//privateAdmin.Get("/dashboard-analytics", admin.AdminDashboard)
-
+	// Health check
+	api.Get("/health", func(c *fiber.Ctx) error {
+		return c.JSON(fiber.Map{
+			"status":    "healthy",
+			"framework": "Golara",
+			"version":   "1.0.0",
+		})
+	})
 }

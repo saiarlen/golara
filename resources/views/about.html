@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.title}} - {{.AppName}}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 800px; margin: 0 auto; padding: 2rem; }
+        .nav { background: #667eea; color: white; padding: 1rem 0; }
+        .nav .container { display: flex; justify-content: space-between; align-items: center; }
+        .nav .brand { font-size: 1.5rem; font-weight: 700; color: white; text-decoration: none; }
+        .nav-links { display: flex; list-style: none; gap: 2rem; }
+        .nav-links a { text-decoration: none; color: white; }
+        h1 { color: #667eea; margin-bottom: 2rem; }
+        h2 { color: #ff6b35; margin: 2rem 0 1rem; }
+        .feature-list { list-style: none; }
+        .feature-list li { padding: 0.5rem 0; }
+        .feature-list li:before { content: "✅ "; margin-right: 0.5rem; }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="container">
+            <a href="/" class="brand">🔥 {{.AppName}}</a>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/docs">Documentation</a></li>
+                <li><a href="/api/health">API</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>About Golara Framework</h1>
+        
+        <p>Golara is a complete Laravel-inspired MVC framework for Go, designed to bring the elegance and conventions of Laravel to the performance and simplicity of Go.</p>
+
+        <h2>🎯 Mission</h2>
+        <p>To provide developers with a familiar Laravel-style development experience while leveraging Go's superior performance, type safety, and deployment simplicity.</p>
+
+        <h2>🔥 Key Features</h2>
+        <ul class="feature-list">
+            <li>Complete MVC Architecture (Models, Views, Controllers)</li>
+            <li>Laravel Blade-like Template Engine</li>
+            <li>Eloquent-style ORM with GORM</li>
+            <li>Request Validation System</li>
+            <li>Middleware Pipeline</li>
+            <li>Job Queue System</li>
+            <li>Event System</li>
+            <li>File Storage System</li>
+            <li>Redis Caching</li>
+            <li>CLI Scaffolding Tools</li>
+        </ul>
+
+        <h2>🚀 Performance Benefits</h2>
+        <ul class="feature-list">
+            <li>Compiled binary - no runtime dependencies</li>
+            <li>10x faster than PHP applications</li>
+            <li>Built-in concurrency with goroutines</li>
+            <li>Low memory footprint</li>
+            <li>Single binary deployment</li>
+        </ul>
+
+        <h2>💻 Developer Experience</h2>
+        <ul class="feature-list">
+            <li>Familiar Laravel conventions</li>
+            <li>Hot reload development</li>
+            <li>Comprehensive documentation</li>
+            <li>Production-ready Docker setup</li>
+            <li>Extensive testing framework</li>
+        </ul>
+
+        <h2>🤝 Contributing</h2>
+        <p>Golara is open source and welcomes contributions. Visit our <a href="https://github.com/saiarlen/golara">GitHub repository</a> to get involved.</p>
+    </div>
+</body>
+</html>

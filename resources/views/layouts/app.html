@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.title}} - Golara App</title>
+    {{csrf}}
+    <link href="{{asset "css/app.css"}}" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="{{route "home"}}" class="brand">Golara</a>
+            <ul class="nav-links">
+                <li><a href="{{route "home"}}">Home</a></li>
+                <li><a href="{{route "products"}}">Products</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <main class="main">
+        {{template "content" .}}
+    </main>
+    
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Golara Framework. Built with ❤️</p>
+        </div>
+    </footer>
+    
+    <script src="{{asset "js/app.js"}}"></script>
+</body>
+</html>

@@ -5,7 +5,7 @@ denv.yaml
 storage/*
 !storage
 tmp
-ekycapp
+golara
 .air
 .env.backup
 .DS_Store

@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Golara Framework - Complete Tutorial</title>
+    <link rel="stylesheet" href="../assets/css/docs.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism.min.css">
+</head>
+<body>
+    <nav class="sidebar">
+        <div class="logo">
+            <h1>🔥 Golara</h1>
+            <span class="version">v1.0.0</span>
+        </div>
+        <ul class="nav-menu">
+            <li><a href="#getting-started">Getting Started</a></li>
+            <li><a href="#installation">Installation</a></li>
+            <li><a href="#configuration">Configuration</a></li>
+            <li><a href="#routing">Routing</a></li>
+            <li><a href="#controllers">Controllers</a></li>
+            <li><a href="#models">Models & Database</a></li>
+            <li><a href="#views">Views & Templates</a></li>
+            <li><a href="#migrations">Migrations</a></li>
+            <li><a href="#validation">Validation</a></li>
+            <li><a href="#middleware">Middleware</a></li>
+            <li><a href="#caching">Caching</a></li>
+            <li><a href="#storage">File Storage</a></li>
+            <li><a href="#queues">Queues & Jobs</a></li>
+            <li><a href="#events">Events</a></li>
+            <li><a href="#testing">Testing</a></li>
+            <li><a href="#deployment">Deployment</a></li>
+        </ul>
+    </nav>
+    
+    <main class="content">
+        <header class="hero">
+            <h1>🔥 Golara Framework</h1>
+            <p class="lead">The Laravel-inspired Go Framework - Complete Tutorial</p>
+            <div class="hero-buttons">
+                <a href="#getting-started" class="btn btn-primary">Get Started</a>
+                <a href="https://github.com/saiarlen/golara" class="btn btn-secondary">GitHub</a>
+            </div>
+        </header>
+
+        <!-- Getting Started -->
+        <section id="getting-started" class="doc-section">
+            <h2>🚀 Getting Started</h2>
+            <div class="section-content">
+                <p>Golara is a complete Laravel-inspired MVC framework for Go, providing familiar Laravel conventions with Go's performance benefits.</p>
+                
+                <h3>What You'll Learn</h3>
+                <ul>
+                    <li>Complete MVC architecture (Models, Views, Controllers)</li>
+                    <li>Laravel Blade-like template engine</li>
+                    <li>Database ORM with relationships</li>
+                    <li>Request validation and middleware</li>
+                    <li>Caching, queues, and events</li>
+                    <li>Production deployment</li>
+                </ul>
+
+                <h3>Prerequisites</h3>
+                <ul>
+                    <li>Go 1.21 or higher</li>
+                    <li>MySQL/PostgreSQL (optional)</li>
+                    <li>Redis (optional)</li>
+                    <li>Basic knowledge of Go and web development</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Installation -->
+        <section id="installation" class="doc-section">
+            <h2>📦 Installation</h2>
+            <div class="section-content">
+                <h3>1. Clone the Framework</h3>
+                <pre><code class="language-bash"># Clone Golara framework
+git clone https://github.com/saiarlen/golara.git
+cd golara</code></pre>
+
+                <h3>2. Initialize Your Project</h3>
+                <pre><code class="language-bash"># Interactive project setup
+go run main.go -subcommand init
+
+# You'll be prompted for:
+# - Module name: github.com/username/myapp
+# - App name: My Awesome App
+# - Database name: myapp_db
+# - Port: 8080 (default: 9000)
+# - Author: Your Name</code></pre>
+
+                <h3>3. Install Dependencies</h3>
+                <pre><code class="language-bash"># Install Go dependencies
+go mod tidy
+
+# Install Air for hot reload (optional)
+go install github.com/air-verse/air@latest</code></pre>
+
+                <h3>4. Start Development Server</h3>
+                <pre><code class="language-bash"># Hot reload development
+make dev
+
+# Or regular development
+go run main.go</code></pre>
+
+                <div class="alert alert-success">
+                    <strong>✅ Success!</strong> Your Golara app is now running at <code>http://localhost:9000</code>
+                </div>
+            </div>
+        </section>
+
+        <!-- Configuration -->
+        <section id="configuration" class="doc-section">
+            <h2>⚙️ Configuration</h2>
+            <div class="section-content">
+                <h3>Environment Configuration</h3>
+                <p>Golara uses <code>.env.yaml</code> for configuration (Laravel-style):</p>
+                
+                <pre><code class="language-yaml"># Application Settings
+APP_NAME: "My Golara App"
+APP_ENV: "development"        # development, production, testing
+APP_DEBUG: true              # Enable debug mode
+APP_PORT: "9000"             # Server port
+
+# Database Configuration
+DB_CONNECTION: "mysql"        # mysql, postgres, sqlite
+DB_HOST: "localhost"
+DB_PORT: "3306"
+DB_DATABASE: "golara_db"
+DB_USERNAME: "root"
+DB_PASSWORD: ""
+
+# Redis Configuration
+REDIS_HOST: "localhost"
+REDIS_PORT: "6379"
+CACHE_DRIVER: "redis"        # redis, memory
+QUEUE_CONNECTION: "redis"    # redis, memory, sync
+
+# Security
+JWT_SECRET: "your-secret-key"
+CORS_ALLOWED_DOMAINS: "http://localhost:3000"</code></pre>
+
+                <h3>Accessing Configuration</h3>
+                <pre><code class="language-go">import "yourmodule/config"
+
+// Get configuration values
+appName := config.Denv("APP_NAME")
+dbHost := config.Denv("DB_HOST")
+port := config.Denv("APP_PORT")</code></pre>
+            </div>
+        </section>
+
+        <!-- Routing -->
+        <section id="routing" class="doc-section">
+            <h2>🛣️ Routing</h2>
+            <div class="section-content">
+                <h3>Basic Routing</h3>
+                <pre><code class="language-go">// routes/api.go
+func RegisterRoutes(app *framework.Golara) {
+    // Basic routes
+    app.App.Get("/", HomeController)
+    app.App.Post("/users", CreateUser)
+    
+    // Route groups
+    api := app.App.Group("/api")
+    api.Get("/users", GetUsers)
+    api.Post("/users", CreateUser)
+    
+    // Route parameters
+    app.App.Get("/users/:id", GetUser)
+    app.App.Put("/users/:id", UpdateUser)
+    app.App.Delete("/users/:id", DeleteUser)
+}</code></pre>
+
+                <h3>Resource Routes (Laravel-style)</h3>
+                <pre><code class="language-go">// Equivalent to Laravel's Route::resource()
+userController := &controllers.UserController{DB: app.DB}
+
+// API routes (JSON responses)
+api.Get("/users", userController.Index)        // GET /api/users
+api.Get("/users/:id", userController.Show)     // GET /api/users/1
+api.Post("/users", userController.Store)       // POST /api/users
+api.Put("/users/:id", userController.Update)   // PUT /api/users/1
+api.Delete("/users/:id", userController.Destroy) // DELETE /api/users/1</code></pre>
+
+                <h3>Web Routes (HTML responses)</h3>
+                <pre><code class="language-go">// Web routes for HTML views
+web := app.App.Group("/")
+web.Get("/users", userController.Index)           // List users page
+web.Get("/users/create", userController.Create)   // Create form
+web.Post("/users", userController.Store)          // Handle form
+web.Get("/users/:id", userController.Show)        // Show user page
+web.Get("/users/:id/edit", userController.Edit)   // Edit form
+web.Put("/users/:id", userController.Update)      // Handle update
+web.Delete("/users/:id", userController.Destroy)  // Delete user</code></pre>
+
+                <h3>Route Parameters</h3>
+                <pre><code class="language-go">func GetUser(c *fiber.Ctx) error {
+    id := c.Params("id")
+    name := c.Query("name")
+    
+    return c.JSON(fiber.Map{
+        "id": id,
+        "name": name,
+    })
+}</code></pre>
+            </div>
+        </section>
+
+        <!-- Controllers -->
+        <section id="controllers" class="doc-section">
+            <h2>🎮 Controllers</h2>
+            <div class="section-content">
+                <h3>Generate Controllers</h3>
+                <pre><code class="language-bash"># Generate API controller (JSON responses)
+go run main.go -subcommand make:controller User
+
+# Generate Web controller (HTML views)
+go run main.go -subcommand make:controller User --web</code></pre>
+
+                <h3>API Controller Example</h3>
+                <pre><code class="language-go">// app/controllers/user_controller.go
+package controllers
+
+import (
+    "yourmodule/app/models"
+    "yourmodule/framework/database"
+    "github.com/gofiber/fiber/v2"
+)
+
+type UserController struct {
+    DB *database.DatabaseManager
+}
+
+// Index - GET /users (list all users)
+func (ctrl *UserController) Index(c *fiber.Ctx) error {
+    var users []models.User
+    
+    // Pagination
+    page, _ := strconv.Atoi(c.Query("page", "1"))
+    perPage := 15
+    
+    qb := database.NewQueryBuilder(ctrl.DB.Connection())
+    result, err := qb.Table("users").
+        OrderBy("created_at", "DESC").
+        Paginate(page, perPage, &users)
+    
+    if err != nil {
+        return c.Status(500).JSON(fiber.Map{
+            "success": false,
+            "message": "Failed to fetch users",
+        })
+    }
+    
+    return c.JSON(fiber.Map{
+        "success": true,
+        "data": users,
+        "meta": result,
+    })
+}
+
+// Store - POST /users (create new user)
+func (ctrl *UserController) Store(c *fiber.Ctx) error {
+    user := models.User{}
+    
+    if err := c.BodyParser(&user); err != nil {
+        return c.Status(400).JSON(fiber.Map{
+            "success": false,
+            "message": "Invalid request data",
+        })
+    }
+    
+    model := database.NewModel(ctrl.DB.Connection())
+    if err := model.Create(&user); err != nil {
+        return c.Status(500).JSON(fiber.Map{
+            "success": false,
+            "message": "Failed to create user",
+        })
+    }
+    
+    return c.Status(201).JSON(fiber.Map{
+        "success": true,
+        "data": user,
+    })
+}</code></pre>
+
+                <h3>Web Controller Example</h3>
+                <pre><code class="language-go">// Web controller returns HTML views
+func (ctrl *UserController) Index(c *fiber.Ctx) error {
+    var users []models.User
+    // ... fetch users
+    
+    return view.View(c, "users/index", view.ViewData{
+        "users": users,
+        "title": "All Users",
+    }, "layouts/app")
+}
+
+func (ctrl *UserController) Create(c *fiber.Ctx) error {
+    return view.View(c, "users/create", view.ViewData{
+        "title": "Create User",
+    }, "layouts/app")
+}</code></pre>
+            </div>
+        </section>
+
+        <!-- Models -->
+        <section id="models" class="doc-section">
+            <h2>🗄️ Models & Database</h2>
+            <div class="section-content">
+                <h3>Generate Models</h3>
+                <pre><code class="language-bash"># Generate a model
+go run main.go -subcommand make:model User</code></pre>
+
+                <h3>Model Definition</h3>
+                <pre><code class="language-go">// app/models/user.go
+package models
+
+import "gorm.io/gorm"
+
+type User struct {
+    gorm.Model
+    Name     string `json:"name" gorm:"size:255;not null"`
+    Email    string `json:"email" gorm:"size:255;unique;not null"`
+    Password string `json:"-" gorm:"size:255;not null"`
+    
+    // Relationships
+    Posts []Post `json:"posts" gorm:"foreignKey:UserID"`
+}
+
+// TableName returns the table name
+func (User) TableName() string {
+    return "users"
+}</code></pre>
+
+                <h3>Model Relationships</h3>
+                <pre><code class="language-go">// One-to-Many
+type User struct {
+    gorm.Model
+    Posts []Post `gorm:"foreignKey:UserID"`
+}
+
+type Post struct {
+    gorm.Model
+    Title  string
+    UserID uint
+    User   User `gorm:"foreignKey:UserID"`
+}
+
+// Many-to-Many
+type User struct {
+    gorm.Model
+    Roles []Role `gorm:"many2many:user_roles;"`
+}
+
+type Role struct {
+    gorm.Model
+    Users []User `gorm:"many2many:user_roles;"`
+}</code></pre>
+
+                <h3>Query Builder (Laravel Eloquent-style)</h3>
+                <pre><code class="language-go">import "yourmodule/framework/database"
+
+// Basic queries
+var users []models.User
+qb := database.NewQueryBuilder(db)
+
+// Select with conditions
+qb.Table("users").
+   Where("age", ">", 18).
+   Where("status", "=", "active").
+   OrderBy("created_at", "DESC").
+   Limit(10).
+   Find(&users)
+
+// With relationships
+qb.Table("users").
+   With("Posts").
+   Find(&users)
+
+// Pagination
+result, err := qb.Table("users").
+   Paginate(1, 15, &users)
+
+// Aggregates
+count := qb.Table("users").Count()
+avg := qb.Table("users").Avg("age")</code></pre>
+
+                <h3>Model Operations</h3>
+                <pre><code class="language-go">model := database.NewModel(db)
+
+// Create
+user := models.User{Name: "John", Email: "john@example.com"}
+model.Create(&user)
+
+// Find
+var user models.User
+model.Find(&user, 1) // Find by ID
+model.Where("email", "john@example.com").First(&user)
+
+// Update
+model.Update(&user, models.User{Name: "Jane"})
+
+// Delete
+model.Delete(&user)</code></pre>
+            </div>
+        </section>
+
+        <!-- Views -->
+        <section id="views" class="doc-section">
+            <h2>🎨 Views & Templates</h2>
+            <div class="section-content">
+                <h3>Generate Views</h3>
+                <pre><code class="language-bash"># Generate a view template
+go run main.go -subcommand make:view users/index</code></pre>
+
+                <h3>Master Layout</h3>
+                <pre><code class="language-html"><!-- resources/views/layouts/app.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{.title}} - {{.AppName}}</title>
+    {{csrf}}
+    <link href="{{asset "css/app.css"}}" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="{{route "home"}}" class="brand">{{.AppName}}</a>
+            <ul class="nav-links">
+                <li><a href="{{route "users"}}">Users</a></li>
+                <li><a href="{{route "posts"}}">Posts</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <main class="main">
+        {{template "content" .}}
+    </main>
+    
+    <script src="{{asset "js/app.js"}}"></script>
+</body>
+</html></code></pre>
+
+                <h3>Page Template</h3>
+                <pre><code class="language-html"><!-- resources/views/users/index.html -->
+{{define "content"}}
+<div class="container">
+    <h1>{{.title}}</h1>
+    
+    <div class="actions">
+        <a href="{{route "users.create"}}" class="btn btn-primary">Create User</a>
+    </div>
+    
+    <div class="users-grid">
+        {{range .users}}
+        <div class="user-card">
+            <h3>{{.Name}}</h3>
+            <p>{{.Email}}</p>
+            <div class="actions">
+                <a href="{{route "users.show"}} {{.ID}}">View</a>
+                <a href="{{route "users.edit"}} {{.ID}}">Edit</a>
+            </div>
+        </div>
+        {{else}}
+        <p>No users found.</p>
+        {{end}}
+    </div>
+</div>
+{{end}}</code></pre>
+
+                <h3>Template Helpers</h3>
+                <pre><code class="language-html"><!-- Asset URLs -->
+<link href="{{asset "css/app.css"}}" rel="stylesheet">
+<script src="{{asset "js/app.js"}}"></script>
+
+<!-- Named Routes -->
+<a href="{{route "users"}}">All Users</a>
+<a href="{{route "users.show"}} {{.user.ID}}">View User</a>
+
+<!-- CSRF Token -->
+<form method="POST">
+    {{csrf}}
+    <!-- form fields -->
+</form>
+
+<!-- Conditional Rendering -->
+{{if .user}}
+    <h1>Welcome, {{.user.Name}}!</h1>
+{{else}}
+    <h1>Welcome, Guest!</h1>
+{{end}}
+
+<!-- Loops -->
+{{range .items}}
+    <div>{{.Name}}</div>
+{{end}}</code></pre>
+
+                <h3>Rendering Views in Controllers</h3>
+                <pre><code class="language-go">import "yourmodule/framework/view"
+
+func (ctrl *UserController) Index(c *fiber.Ctx) error {
+    var users []models.User
+    // ... fetch users
+    
+    return view.View(c, "users/index", view.ViewData{
+        "users": users,
+        "title": "All Users",
+        "AppName": "My App",
+    }, "layouts/app")
+}</code></pre>
+            </div>
+        </section>
+
+        <!-- Migrations -->
+        <section id="migrations" class="doc-section">
+            <h2>🗃️ Migrations</h2>
+            <div class="section-content">
+                <h3>Generate Migrations</h3>
+                <pre><code class="language-bash"># Generate a migration
+go run main.go -subcommand make:migration create_users_table</code></pre>
+
+                <h3>Migration Structure</h3>
+                <pre><code class="language-go">// database/migrations/2024_01_01_000001_create_users_table.go
+package migrations
+
+import "gorm.io/gorm"
+
+func CreateUsersTableMigration() (string, func(*gorm.DB) error, func(*gorm.DB) error) {
+    return "2024_01_01_000001_create_users_table",
+        // Up migration
+        func(db *gorm.DB) error {
+            return db.Exec(`
+                CREATE TABLE users (
+                    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                    name VARCHAR(255) NOT NULL,
+                    email VARCHAR(255) UNIQUE NOT NULL,
+                    password VARCHAR(255) NOT NULL,
+                    created_at TIMESTAMP NULL,
+                    updated_at TIMESTAMP NULL,
+                    deleted_at TIMESTAMP NULL,
+                    INDEX idx_users_deleted_at (deleted_at)
+                )
+            `).Error
+        },
+        // Down migration
+        func(db *gorm.DB) error {
+            return db.Exec("DROP TABLE IF EXISTS users").Error
+        }
+}</code></pre>
+
+                <h3>Running Migrations</h3>
+                <pre><code class="language-bash"># Run all pending migrations
+go run main.go -subcommand migrate
+
+# Rollback migrations
+go run main.go -subcommand migrate:rollback
+
+# Check migration status
+go run main.go -subcommand migrate:status</code></pre>
+            </div>
+        </section>
+
+        <!-- Validation -->
+        <section id="validation" class="doc-section">
+            <h2>✅ Validation</h2>
+            <div class="section-content">
+                <h3>Request Validation (Laravel-style)</h3>
+                <pre><code class="language-go">import "yourmodule/framework/validation"
+
+func (ctrl *UserController) Store(c *fiber.Ctx) error {
+    // Create validator
+    validator := validation.NewValidator()
+    
+    // Add validation rules (Laravel-style)
+    validator.AddRule("name", validation.Required()).
+             AddRule("name", validation.Min(2)).
+             AddRule("email", validation.Required()).
+             AddRule("email", validation.Email()).
+             AddRule("password", validation.Required()).
+             AddRule("password", validation.Min(8))
+    
+    // Validate request
+    if !validator.Validate(c) {
+        return c.Status(422).JSON(fiber.Map{
+            "success": false,
+            "message": "Validation failed",
+            "errors": validator.GetErrors(),
+        })
+    }
+    
+    // Process valid data
+    user := models.User{}
+    c.BodyParser(&user)
+    // ... save user
+}</code></pre>
+
+                <h3>Available Validation Rules</h3>
+                <pre><code class="language-go">// Basic rules
+validation.Required()        // Field is required
+validation.Email()          // Valid email format
+validation.Min(5)           // Minimum length/value
+validation.Max(100)         // Maximum length/value
+validation.Numeric()        // Must be numeric
+validation.Alpha()          // Only alphabetic characters
+validation.AlphaNumeric()   // Only alphanumeric characters
+
+// Custom rules
+validation.Custom(func(value interface{}) bool {
+    // Custom validation logic
+    return true
+})</code></pre>
+
+                <h3>Validation Errors</h3>
+                <pre><code class="language-json">{
+    "success": false,
+    "message": "Validation failed",
+    "errors": {
+        "name": ["The name field is required"],
+        "email": ["The email field must be a valid email"],
+        "password": ["The password field must be at least 8 characters"]
+    }
+}</code></pre>
+            </div>
+        </section>
+
+        <!-- Middleware -->
+        <section id="middleware" class="doc-section">
+            <h2>🛡️ Middleware</h2>
+            <div class="section-content">
+                <h3>Generate Middleware</h3>
+                <pre><code class="language-bash"># Generate custom middleware
+go run main.go -subcommand make:middleware Auth</code></pre>
+
+                <h3>Custom Middleware</h3>
+                <pre><code class="language-go">// app/middleware/auth.go
+package middleware
+
+import "github.com/gofiber/fiber/v2"
+
+func Auth() fiber.Handler {
+    return func(c *fiber.Ctx) error {
+        token := c.Get("Authorization")
+        
+        if token == "" {
+            return c.Status(401).JSON(fiber.Map{
+                "message": "Unauthorized",
+            })
+        }
+        
+        // Validate token logic here
+        
+        return c.Next()
+    }
+}</code></pre>
+
+                <h3>Built-in Middleware</h3>
+                <pre><code class="language-go">import "yourmodule/framework/middleware"
+
+// JWT Authentication
+app.App.Use("/api", middleware.JWT(middleware.JWTConfig{
+    SecretKey: config.Denv("JWT_SECRET"),
+}))
+
+// Rate Limiting
+app.App.Use(middleware.RateLimit(middleware.RateLimitConfig{
+    Max:        100,
+    Expiration: time.Hour,
+}))
+
+// CORS
+app.App.Use(middleware.CORS(middleware.CORSConfig{
+    AllowOrigins: config.Denv("CORS_ALLOWED_DOMAINS"),
+}))
+
+// Custom middleware
+app.App.Use("/admin", middleware.Auth())</code></pre>
+
+                <h3>Route-specific Middleware</h3>
+                <pre><code class="language-go">// Apply middleware to specific routes
+api := app.App.Group("/api", middleware.Auth())
+api.Get("/users", userController.Index)
+
+// Multiple middleware
+protected := app.App.Group("/admin", 
+    middleware.Auth(), 
+    middleware.AdminOnly(),
+)
+protected.Get("/dashboard", adminController.Dashboard)</code></pre>
+            </div>
+        </section>
+
+        <!-- Caching -->
+        <section id="caching" class="doc-section">
+            <h2>⚡ Caching</h2>
+            <div class="section-content">
+                <h3>Cache Configuration</h3>
+                <pre><code class="language-yaml"># .env.yaml
+CACHE_DRIVER: "redis"    # redis, memory
+REDIS_HOST: "localhost"
+REDIS_PORT: "6379"</code></pre>
+
+                <h3>Basic Caching</h3>
+                <pre><code class="language-go">// Get cache instance
+cache := app.Cache.Store("redis")
+
+// Store data
+cache.Put("users", users, 1*time.Hour)
+
+// Retrieve data
+var users []models.User
+cache.Get("users", &users)
+
+// Check if exists
+if cache.Has("users") {
+    // Cache exists
+}
+
+// Remove from cache
+cache.Forget("users")
+
+// Clear all cache
+cache.Flush()</code></pre>
+
+                <h3>Cache Remember Pattern (Laravel-style)</h3>
+                <pre><code class="language-go">// Remember pattern - fetch from cache or execute callback
+var users []models.User
+cache.Remember("users", 1*time.Hour, func() (interface{}, error) {
+    // This will only run if cache is empty
+    var users []models.User
+    db.Find(&users)
+    return users, nil
+}, &users)
+
+// Cache expensive operations
+func (ctrl *UserController) Index(c *fiber.Ctx) error {
+    var users []models.User
+    
+    cache := app.Cache.Store("redis")
+    cache.Remember("users:all", 30*time.Minute, func() (interface{}, error) {
+        return fetchUsersFromDatabase()
+    }, &users)
+    
+    return c.JSON(users)
+}</code></pre>
+
+                <h3>Cache Tags</h3>
+                <pre><code class="language-go">// Tag-based caching
+cache.Tags("users", "posts").Put("user:1:posts", posts, 1*time.Hour)
+
+// Flush by tags
+cache.Tags("users").Flush() // Removes all cache with "users" tag</code></pre>
+            </div>
+        </section>
+
+        <!-- Storage -->
+        <section id="storage" class="doc-section">
+            <h2>📁 File Storage</h2>
+            <div class="section-content">
+                <h3>Storage Configuration</h3>
+                <pre><code class="language-yaml"># .env.yaml
+STORAGE_DRIVER: "local"      # local, s3, gcs
+STORAGE_URL: "/storage"       # Public URL prefix
+
+# AWS S3 (optional)
+AWS_ACCESS_KEY_ID: ""
+AWS_SECRET_ACCESS_KEY: ""
+AWS_DEFAULT_REGION: "us-east-1"
+AWS_BUCKET: ""</code></pre>
+
+                <h3>Basic File Operations</h3>
+                <pre><code class="language-go">import "yourmodule/framework/storage"
+
+// Get storage instance
+storage := app.Storage.Disk("local")
+
+// Store content
+content := []byte("Hello, World!")
+storage.Put("files/hello.txt", content)
+
+// Read content
+data, err := storage.Get("files/hello.txt")
+
+// Check if file exists
+if storage.Exists("files/hello.txt") {
+    // File exists
+}
+
+// Delete file
+storage.Delete("files/hello.txt")
+
+// Get file URL
+url := storage.URL("files/hello.txt")
+// Returns: /storage/files/hello.txt</code></pre>
+
+                <h3>File Upload Handling</h3>
+                <pre><code class="language-go">func (ctrl *FileController) Upload(c *fiber.Ctx) error {
+    // Get uploaded file
+    file, err := c.FormFile("file")
+    if err != nil {
+        return c.Status(400).JSON(fiber.Map{
+            "error": "No file uploaded",
+        })
+    }
+    
+    // Store with auto-generated name
+    path, err := storage.Store(file, "uploads")
+    if err != nil {
+        return c.Status(500).JSON(fiber.Map{
+            "error": "Failed to store file",
+        })
+    }
+    
+    // Store with custom name
+    customPath := "uploads/" + file.Filename
+    err = storage.StoreAs(file, "uploads", file.Filename)
+    
+    return c.JSON(fiber.Map{
+        "success": true,
+        "path": path,
+        "url": storage.URL(path),
+    })
+}</code></pre>
+
+                <h3>Directory Operations</h3>
+                <pre><code class="language-go">// Create directory
+storage.MakeDirectory("uploads/images")
+
+// List files in directory
+files, err := storage.Files("uploads")
+// Returns: ["uploads/file1.jpg", "uploads/file2.png"]
+
+// List directories
+dirs, err := storage.Directories("uploads")
+// Returns: ["uploads/images", "uploads/documents"]
+
+// Delete directory and contents
+storage.DeleteDirectory("uploads/temp")</code></pre>
+
+                <h3>File Operations</h3>
+                <pre><code class="language-go">// Copy file
+storage.Copy("uploads/original.jpg", "backups/original.jpg")
+
+// Move file
+storage.Move("uploads/temp.jpg", "uploads/final.jpg")
+
+// Get file size
+size, err := storage.Size("uploads/image.jpg")
+// Returns size in bytes
+
+// Get last modified time
+modTime, err := storage.LastModified("uploads/image.jpg")</code></pre>
+
+                <h3>Multiple Storage Disks</h3>
+                <pre><code class="language-go">// Setup multiple disks
+app.Storage.AddDisk("local", storage.NewLocalStorage("storage/app", "/storage"))
+app.Storage.AddDisk("public", storage.NewLocalStorage("public", "/"))
+
+// Use different disks
+localDisk := app.Storage.Disk("local")
+publicDisk := app.Storage.Disk("public")
+
+// Store in different locations
+localDisk.Put("private/document.pdf", content)
+publicDisk.Put("images/logo.png", imageContent)</code></pre>
+
+                <h3>Image Upload Example</h3>
+                <pre><code class="language-go">func (ctrl *UserController) UpdateAvatar(c *fiber.Ctx) error {
+    userID := c.Params("id")
+    
+    // Get uploaded image
+    file, err := c.FormFile("avatar")
+    if err != nil {
+        return c.Status(400).JSON(fiber.Map{
+            "error": "No avatar uploaded",
+        })
+    }
+    
+    // Validate file type
+    if !strings.HasPrefix(file.Header.Get("Content-Type"), "image/") {
+        return c.Status(400).JSON(fiber.Map{
+            "error": "File must be an image",
+        })
+    }
+    
+    // Store avatar
+    storage := app.Storage.Disk("public")
+    avatarPath := fmt.Sprintf("avatars/user_%s.jpg", userID)
+    
+    err = storage.PutFile(avatarPath, file)
+    if err != nil {
+        return c.Status(500).JSON(fiber.Map{
+            "error": "Failed to save avatar",
+        })
+    }
+    
+    // Update user record
+    var user models.User
+    model := database.NewModel(ctrl.DB.Connection())
+    model.Find(&user, userID)
+    
+    // Delete old avatar if exists
+    if user.Avatar != "" {
+        storage.Delete(user.Avatar)
+    }
+    
+    // Update user with new avatar path
+    user.Avatar = avatarPath
+    model.Update(&user, user)
+    
+    return c.JSON(fiber.Map{
+        "success": true,
+        "avatar_url": storage.URL(avatarPath),
+    })
+}</code></pre>
+
+                <h3>File Download</h3>
+                <pre><code class="language-go">func (ctrl *FileController) Download(c *fiber.Ctx) error {
+    filename := c.Params("filename")
+    
+    storage := app.Storage.Disk("local")
+    filePath := "downloads/" + filename
+    
+    if !storage.Exists(filePath) {
+        return c.Status(404).JSON(fiber.Map{
+            "error": "File not found",
+        })
+    }
+    
+    // Set headers for download
+    c.Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s", filename))
+    c.Set("Content-Type", "application/octet-stream")
+    
+    // Send file
+    return c.SendFile(filepath.Join("storage/app", filePath))
+}</code></pre>
+            </div>
+        </section>
+
+        <!-- Queues -->
+        <section id="queues" class="doc-section">
+            <h2>📋 Queues & Jobs</h2>
+            <div class="section-content">
+                <h3>Generate Jobs</h3>
+                <pre><code class="language-bash"># Generate a job
+go run main.go -subcommand make:job SendEmail</code></pre>
+
+                <h3>Job Definition</h3>
+                <pre><code class="language-go">// app/jobs/send_email_job.go
+package jobs
+
+import (
+    "yourmodule/framework/queue"
+    "log"
+)
+
+type SendEmailJob struct {
+    queue.BaseJob
+    Email   string
+    Subject string
+    Body    string
+}
+
+func (j *SendEmailJob) Handle() error {
+    log.Printf("Sending email to %s", j.Email)
+    
+    // Email sending logic here
+    // e.g., using SMTP, SendGrid, etc.
+    
+    return nil
+}
+
+func NewSendEmailJob(email, subject, body string) *SendEmailJob {
+    return &SendEmailJob{
+        BaseJob: queue.BaseJob{
+            Name: "send_email",
+            Payload: make(map[string]interface{}),
+        },
+        Email:   email,
+        Subject: subject,
+        Body:    body,
+    }
+}</code></pre>
+
+                <h3>Dispatching Jobs</h3>
+                <pre><code class="language-go">// Register job handlers
+app.Queue.RegisterJob("send_email", func() queue.Job {
+    return &jobs.SendEmailJob{}
+})
+
+// Start queue workers
+app.StartQueue("default", 3) // 3 workers
+
+// Dispatch jobs
+job := jobs.NewSendEmailJob(
+    "user@example.com",
+    "Welcome!",
+    "Welcome to our platform!",
+)
+app.Queue.Dispatch(job)
+
+// Dispatch with delay
+app.Queue.DispatchAfter(job, 5*time.Minute)</code></pre>
+
+                <h3>Queue Configuration</h3>
+                <pre><code class="language-yaml"># .env.yaml
+QUEUE_CONNECTION: "redis"    # redis, memory, sync
+REDIS_HOST: "localhost"
+REDIS_PORT: "6379"</code></pre>
+
+                <h3>Failed Jobs</h3>
+                <pre><code class="language-go">func (j *SendEmailJob) Handle() error {
+    // Job logic
+    if err := sendEmail(j.Email, j.Subject, j.Body); err != nil {
+        // Job will be retried automatically
+        return err
+    }
+    return nil
+}
+
+// Configure retry attempts
+func (j *SendEmailJob) MaxAttempts() int {
+    return 3
+}
+
+// Configure retry delay
+func (j *SendEmailJob) RetryDelay() time.Duration {
+    return 30 * time.Second
+}</code></pre>
+            </div>
+        </section>
+
+        <!-- Events -->
+        <section id="events" class="doc-section">
+            <h2>📡 Events</h2>
+            <div class="section-content">
+                <h3>Event System</h3>
+                <pre><code class="language-go">import "yourmodule/framework/events"
+
+// Define events
+type UserRegisteredEvent struct {
+    events.BaseEvent
+    User models.User
+}
+
+func NewUserRegisteredEvent(user models.User) *UserRegisteredEvent {
+    return &UserRegisteredEvent{
+        BaseEvent: events.BaseEvent{Name: "user.registered"},
+        User:      user,
+    }
+}</code></pre>
+
+                <h3>Event Listeners</h3>
+                <pre><code class="language-go">// Register event listeners
+app.Events.ListenFunc("user.registered", func(event events.Event) error {
+    userEvent := event.(*UserRegisteredEvent)
+    
+    // Send welcome email
+    job := jobs.NewSendEmailJob(
+        userEvent.User.Email,
+        "Welcome!",
+        "Welcome to our platform!",
+    )
+    return app.Queue.Dispatch(job)
+})
+
+// Multiple listeners for same event
+app.Events.ListenFunc("user.registered", func(event events.Event) error {
+    // Log user registration
+    log.Printf("User registered: %s", userEvent.User.Email)
+    return nil
+})</code></pre>
+
+                <h3>Dispatching Events</h3>
+                <pre><code class="language-go">func (ctrl *UserController) Store(c *fiber.Ctx) error {
+    user := models.User{}
+    // ... create user
+    
+    // Dispatch event
+    event := NewUserRegisteredEvent(user)
+    app.Events.Dispatch(event)
+    
+    return c.JSON(user)
+}</code></pre>
+
+                <h3>Event-Driven Architecture</h3>
+                <pre><code class="language-go">// Order processing example
+type OrderCreatedEvent struct {
+    events.BaseEvent
+    Order models.Order
+}
+
+// Multiple listeners handle different aspects
+app.Events.ListenFunc("order.created", sendOrderConfirmation)
+app.Events.ListenFunc("order.created", updateInventory)
+app.Events.ListenFunc("order.created", notifyWarehouse)
+app.Events.ListenFunc("order.created", trackAnalytics)</code></pre>
+            </div>
+        </section>
+
+        <!-- Testing -->
+        <section id="testing" class="doc-section">
+            <h2>🧪 Testing</h2>
+            <div class="section-content">
+                <h3>Test Structure</h3>
+                <pre><code class="language-bash">tests/
+├── unit/           # Unit tests
+├── integration/    # Integration tests
+└── examples/       # Example tests</code></pre>
+
+                <h3>HTTP Testing</h3>
+                <pre><code class="language-go">// tests/integration/user_test.go
+package integration
+
+import (
+    "testing"
+    "yourmodule/framework/testing"
+)
+
+func TestUserAPI(t *testing.T) {
+    app := testing.CreateTestApp()
+    
+    // Test user creation
+    response := app.Post("/api/users", map[string]interface{}{
+        "name":  "John Doe",
+        "email": "john@example.com",
+    })
+    
+    response.AssertStatus(201)
+    response.AssertJSON(map[string]interface{}{
+        "success": true,
+        "data": map[string]interface{}{
+            "name":  "John Doe",
+            "email": "john@example.com",
+        },
+    })
+    
+    // Test user listing
+    response = app.Get("/api/users")
+    response.AssertStatus(200)
+    response.AssertJSONCount("data", 1)
+}</code></pre>
+
+                <h3>Database Testing</h3>
+                <pre><code class="language-go">func TestUserModel(t *testing.T) {
+    db := testing.CreateTestDB()
+    defer testing.CleanupTestDB(db)
+    
+    // Test user creation
+    user := models.User{
+        Name:  "John Doe",
+        Email: "john@example.com",
+    }
+    
+    model := database.NewModel(db)
+    err := model.Create(&user)
+    
+    assert.NoError(t, err)
+    assert.NotZero(t, user.ID)
+    
+    // Test user retrieval
+    var foundUser models.User
+    err = model.Find(&foundUser, user.ID)
+    
+    assert.NoError(t, err)
+    assert.Equal(t, "John Doe", foundUser.Name)
+}</code></pre>
+
+                <h3>Running Tests</h3>
+                <pre><code class="language-bash"># Run all tests
+make test
+
+# Run specific test suites
+make test-unit
+make test-integration
+
+# Run with coverage
+go test -cover ./tests/...</code></pre>
+            </div>
+        </section>
+
+        <!-- Deployment -->
+        <section id="deployment" class="doc-section">
+            <h2>🚀 Deployment</h2>
+            <div class="section-content">
+                <h3>Production Configuration</h3>
+                <pre><code class="language-yaml"># .env.yaml (Production)
+APP_ENV: "production"
+APP_DEBUG: false
+APP_URL: "https://yourdomain.com"
+
+# Database
+DB_HOST: "your-db-host"
+DB_PASSWORD: "secure-password"
+
+# Redis
+REDIS_HOST: "your-redis-host"
+REDIS_PASSWORD: "redis-password"
+
+# Security
+JWT_SECRET: "very-secure-secret-key"</code></pre>
+
+                <h3>Docker Deployment</h3>
+                <pre><code class="language-dockerfile"># Multi-stage Dockerfile
+FROM golang:1.21-alpine AS builder
+WORKDIR /app
+COPY . .
+RUN go build -o golara main.go
+
+FROM alpine:latest
+RUN apk --no-cache add ca-certificates
+WORKDIR /root/
+COPY --from=builder /app/golara .
+COPY --from=builder /app/.env.yaml .
+COPY --from=builder /app/resources ./resources/
+CMD ["./golara"]</code></pre>
+
+                <h3>Docker Compose</h3>
+                <pre><code class="language-yaml"># docker-compose.yml
+version: '3.8'
+services:
+  app:
+    build: .
+    ports:
+      - "9000:9000"
+    environment:
+      - APP_ENV=production
+      - DB_HOST=mysql
+      - REDIS_HOST=redis
+    depends_on:
+      - mysql
+      - redis
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: golara_db
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis_data:/data
+
+volumes:
+  mysql_data:
+  redis_data:</code></pre>
+
+                <h3>Build & Deploy</h3>
+                <pre><code class="language-bash"># Build for production
+make build
+
+# Docker deployment
+docker-compose up -d
+
+# Manual deployment
+./bin/golara</code></pre>
+
+                <h3>Performance Optimization</h3>
+                <ul>
+                    <li><strong>Enable caching</strong> for database queries and views</li>
+                    <li><strong>Use Redis</strong> for sessions and cache</li>
+                    <li><strong>Enable gzip compression</strong> in reverse proxy</li>
+                    <li><strong>Use CDN</strong> for static assets</li>
+                    <li><strong>Database indexing</strong> for frequently queried fields</li>
+                    <li><strong>Queue heavy operations</strong> for background processing</li>
+                    <li><strong>Use proper file storage</strong> with organized directory structure</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="doc-footer">
+            <div class="container">
+                <p>Made with ❤️ for developers who love Laravel but need Go's performance</p>
+                <p><strong>Golara Framework - Complete Laravel-style MVC for Go! 🔥</strong></p>
+            </div>
+        </footer>
+    </main>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="../assets/js/docs.js"></script>
+</body>
+</html>

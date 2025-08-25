@@ -1,29 +1,53 @@
-FROM golang:1.23
+# Multi-stage build for production
+FROM golang:1.21-alpine AS builder
 
-# All Shell Binaries
-RUN apt-get update && apt-get install -y ghostscript imagemagick ffmpeg poppler-utils fonts-open-sans
+# Install build dependencies
+RUN apk add --no-cache git ca-certificates
 
-#mods
-RUN sed -i 's/<policy domain="coder" rights="none" pattern="PDF"/<policy domain="coder" rights="read|write" pattern="PDF"/g' /etc/ImageMagick-6/policy.xml
+WORKDIR /app
 
-
-WORKDIR /ekycdir
-
-# Copy the go mod and sum files
+# Copy go mod files
 COPY go.mod go.sum ./
-
 RUN go mod download
-RUN go mod tidy
 
-RUN go install github.com/air-verse/air@latest
-
+# Copy source code
 COPY . .
 
-#Pull Binaries
-RUN cd xbin && wget https://scripts.appxcube.in/gobin/wkhtmltopdf-amd64 && chmod +x wkhtmltopdf-amd64
+# Build application
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o golara main.go
 
+# Production stage
+FROM alpine:latest
 
+# Install runtime dependencies
+RUN apk --no-cache add ca-certificates tzdata
+
+# Create app user for security
+RUN addgroup -g 1001 -S golara && \
+    adduser -S golara -u 1001 -G golara
+
+WORKDIR /app
+
+# Copy binary and required files
+COPY --from=builder /app/golara .
+COPY --from=builder /app/.env.yaml* ./
+COPY --from=builder /app/resources ./resources/
+COPY --from=builder /app/storage ./storage/
+
+# Create necessary directories
+RUN mkdir -p storage/logs storage/cache storage/app && \
+    chown -R golara:golara /app
+
+# Switch to app user
+USER golara
+
+# Expose port
 EXPOSE 9000
-CMD ["air"]
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:9000/health || exit 1
+
+CMD ["./golara"]
 
 

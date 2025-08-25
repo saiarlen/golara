@@ -1,19 +1,47 @@
-# Dynamic Conf File
+# 🔥 Golara Framework Configuration
+# Copy this file to .env.yaml and update with your settings
 
-#Database
-DB_HOST: "127.0.0.1"
-DB_PORT: "3306"
-DB_DATABASE: ekyc_local
-DB_USERNAME: root
-DB_PASSWORD: ""
+# Application Settings
+APP_NAME: "Golara Framework"          # Your application name
+APP_ENV: "development"                # Options: development, production, testing
+APP_DEBUG: true                       # Enable debug mode (disable in production)
+APP_URL: "http://localhost:9000"      # Your application URL
+APP_PORT: "9000"                      # Server port
 
+# Database Configuration
+DB_CONNECTION: "mysql"                # Options: mysql, postgres, sqlite
+DB_HOST: "localhost"                  # Database host
+DB_PORT: "3306"                       # Database port (3306=MySQL, 5432=PostgreSQL)
+DB_DATABASE: "golara_db"              # Database name
+DB_USERNAME: "root"                   # Database username
+DB_PASSWORD: ""                       # Database password
 
-#App Salts
-KYC_TOKEN_SECRET: "#"
-ADMIN_TOKEN_SECRET: "#"
-CLOSURE_TOKEN_SECRET: "#"
+# Redis Configuration (for caching and queues)
+REDIS_HOST: "localhost"               # Redis host
+REDIS_PORT: "6379"                    # Redis port
+REDIS_PASSWORD: ""                    # Redis password (if required)
+REDIS_DB: 0                          # Redis database number (0-15)
 
+# Cache Settings
+CACHE_DRIVER: "redis"                 # Options: redis, memory
 
-ZOOP_API_KEY: "#"
-ZOOP_APP_ID: "#"
-ZOOP_BASE_URL: "#"
+# Queue Settings
+QUEUE_CONNECTION: "redis"             # Options: redis, memory, sync
+
+# Security Settings
+JWT_SECRET: "your-jwt-secret-key-change-in-production"  # JWT signing key
+CORS_ALLOWED_DOMAINS: "http://localhost:3000,http://localhost:8080"  # CORS allowed origins
+
+# Optional: Mail Configuration
+# MAIL_DRIVER: "smtp"                 # Options: smtp, sendmail, mailgun
+# MAIL_HOST: "localhost"
+# MAIL_PORT: "587"
+# MAIL_USERNAME: ""
+# MAIL_PASSWORD: ""
+
+# Optional: File Storage
+# STORAGE_DRIVER: "local"             # Options: local, s3, gcs
+# AWS_ACCESS_KEY_ID: ""
+# AWS_SECRET_ACCESS_KEY: ""
+# AWS_DEFAULT_REGION: "us-east-1"
+# AWS_BUCKET: ""
